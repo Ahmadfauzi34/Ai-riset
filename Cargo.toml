@@ -13,20 +13,21 @@ name = "lab_runner"
 path = "src/main.rs"
 
 [dependencies]
-# --- KUNCI MATI CANDLE ---
+# --- UTAMA ---
 candle-core = "=0.8.2"
 candle-nn = "=0.8.2"
-
 anyhow = "1.0"
 wasm-bindgen = "0.2"
 
-# --- TEMBOK PERTAHANAN (DEPENDENCY PINNING) ---
-# Kita paksa semua library pendukung untuk tetap di versi lama (Stable)
+# --- PERTAHANAN LAPIS 1 (Versi Utama Kita) ---
 getrandom = { version = "=0.2.17", features = ["js"] }
+
+# --- PERTAHANAN LAPIS 2 (Vaksin untuk Penyusup) ---
+# Jika v0.3 masuk, paksa dia agar support WASM
+getrandom_v3 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+
+# --- PERTAHANAN LAPIS 3 (Kunci Dependensi Lain) ---
 rand = "=0.8.5"
 rand_core = "=0.6.4"
 rand_chacha = "=0.3.1"
-
-# INI TAMBAHAN BARU:
-# Kita kunci 'half' di versi 2.3.1 (yang masih pakai rand 0.8)
 half = "=2.3.1"
