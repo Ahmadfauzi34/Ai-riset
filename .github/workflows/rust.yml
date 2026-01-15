@@ -1,0 +1,47 @@
+name: Build Candle WASM
+
+# Jalan setiap kali ada Push ke branch main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: # Biar bisa di-klik manual tombol run-nya
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Ambil kode dari repo
+    - uses: actions/checkout@v4
+
+    # 2. Install Rust & Target WASM
+    - name: Install Rust Toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+
+    # 3. Cek apakah kode Rust (Lab Runner) error atau tidak
+    - name: Check Rust Code (Cargo Check)
+      run: cargo check
+
+    # 4. Install wasm-pack (Alat wajib buat bungkus ke Web)
+    - name: Install wasm-pack
+      uses: jetli/wasm-pack-action@v0.4.0
+
+    # 5. Build ke WASM (Target Web)
+    # Ini akan menghasilkan folder 'pkg/' berisi .wasm dan .js
+    - name: Build WASM
+      run: wasm-pack build --target web --out-dir pkg
+
+    # 6. Upload Hasilnya (Artifact)
+    # Supaya Anda bisa download file jadinya di menu Actions
+    - name: Upload WASM Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: candle-nn-catalog-wasm
+        path: pkg/
