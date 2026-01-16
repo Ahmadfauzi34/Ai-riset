@@ -13,21 +13,21 @@ name = "lab_runner"
 path = "src/main.rs"
 
 [dependencies]
-# Kunci Mati Candle
+# --- KUNCI MATI CANDLE ---
 candle-core = "=0.8.2"
 candle-nn = "=0.8.2"
+
 anyhow = "1.0"
 wasm-bindgen = "0.2"
 
-# --- PERTAHANAN UTAMA (Versi 0.2) ---
-getrandom = { version = "=0.2.17", features = ["js"] }
+# --- PERBAIKAN: TAMBAHKAN INI ---
+console_error_panic_hook = "0.1"
 
-# --- VAKSIN VERSI 0.3 (PENTING) ---
-# Ini mengaktifkan fiturnya, sedangkan file config.toml mengaktifkan backend-nya.
-# Dua-duanya harus ada agar v0.3 jalan.
+# --- PERTAHANAN DEPENDENCY ---
+getrandom = { version = "=0.2.17", features = ["js"] }
+# Vaksin untuk getrandom v0.3 (jaga-jaga)
 getrandom_v3 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
 
-# --- KUNCI DEPENDENSI LAIN ---
 rand = "=0.8.5"
 rand_core = "=0.6.4"
 rand_chacha = "=0.3.1"
