@@ -1,36 +1,32 @@
+use wasm_bindgen::prelude::*;
 use candle_core::{Tensor, Result};
 use candle_nn::{Module, VarBuilder};
+use crate::WasmTensor; // Ambil koper dari lib.rs
 
-// 1. Linear / Dense Layer (Stateless, cuma butuh x)
+#[wasm_bindgen]
 pub struct StrictLinear {
     inner: candle_nn::Linear,
 }
 
+#[wasm_bindgen]
 impl StrictLinear {
-    pub fn new(in_dim: usize, out_dim: usize, vb: VarBuilder) -> Result<Self> {
-        let inner = candle_nn::linear(in_dim, out_dim, vb)?;
-        Ok(Self { inner })
+    // Constructor Dummy (Random) untuk tes WASM
+    #[wasm_bindgen(constructor)]
+    pub fn new_random(in_dim: usize, out_dim: usize) -> Result<StrictLinear, JsError> {
+        let device = candle_core::Device::Cpu;
+        // Kita pakai VarBuilder zeros biar simpel
+        let vb = VarBuilder::zeros(candle_core::DType::F32, &device);
+        let inner = candle_nn::linear(in_dim, out_dim, vb)
+            .map_err(|e| JsError::new(&e.to_string()))?;
+        
+        Ok(StrictLinear { inner })
     }
-
-    pub fn forward(&self, x: &Tensor) -> Result<Tensor> {
-        self.inner.forward(x)
-    }
-}
-
-// 2. Dropout (Stateful/Mode-aware, butuh x dan train bool)
-pub struct StrictDropout {
-    inner: candle_nn::Dropout,
-}
-
-impl StrictDropout {
-    pub fn new(prob: f32) -> Self {
-        let inner = candle_nn::Dropout::new(prob);
-        Self { inner }
-    }
-
-    // PERBAIKAN DI SINI:
-    // Tambahkan parameter 'train: bool'
-    pub fn forward(&self, x: &Tensor, train: bool) -> Result<Tensor> {
-        self.inner.forward(x, train)
+    
+    // Forward: Terima Koper -> Proses -> Balikin Koper
+    pub fn forward(&self, input: &WasmTensor) -> Result<WasmTensor, JsError> {
+        let out = self.inner.forward(&input.inner)
+            .map_err(|e| JsError::new(&e.to_string()))?;
+            
+        Ok(WasmTensor { inner: out })
     }
 }
